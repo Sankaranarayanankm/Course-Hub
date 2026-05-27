@@ -6,6 +6,7 @@ const axiosInstance = axios.create({
       ? "http://localhost:5000/api/v1"
       : "/api/v1",
 });
+console.log(import.meta.env.MODE, "This is the mode from axios");
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

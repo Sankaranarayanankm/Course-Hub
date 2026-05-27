@@ -17,6 +17,8 @@ const HomePage = () => {
     queryKey: ["courses"],
     queryFn: async () => {
       const response = await axiosInstance.get("/teacher/courses");
+      console.log(response, "This is the response of courses in home page");
+
       return response?.data;
     },
   });

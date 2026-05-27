@@ -10,6 +10,7 @@ const Dashboard = () => {
     queryKey: ["courses"],
     queryFn: async () => {
       const response = await axiosInstance.get("/student/courses");
+      console.log(response, "This is the response of courses in dashboard");
       return response.data.filter((course) => course.isPurchased);
     },
   });
