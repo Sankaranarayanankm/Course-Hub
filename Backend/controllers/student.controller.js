@@ -111,6 +111,7 @@ export const purchaseCourseController = async (req, res) => {
     course.purchasedCount = course.purchasedCount + 1;
 
     //?Stripe Payment Setup
+    const baseUrl = process.env.CLIENT_URL;
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -124,8 +125,8 @@ export const purchaseCourseController = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:5173/courses/${courseId}`, /// add corse url
-      cancel_url: `http://localhost:5173/courses/${courseId}`,
+      success_url: `${baseUrl}/courses/${courseId}`,
+      cancel_url: `${baseUrl}/courses/${courseId}`,
     });
     if (!session.url) {
       return res
