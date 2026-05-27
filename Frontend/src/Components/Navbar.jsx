@@ -7,7 +7,7 @@ const Navbar = ({ user }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.clear();
-    queryClient.invalidateQueries(["authUser"]);
+    queryClient.invalidateQueries({ queryKey: ["authUser"] });
   };
 
   return (

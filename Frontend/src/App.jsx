@@ -113,6 +113,10 @@ const App = () => {
             <Route path="courses/:courseId" element={<CourseDetails />} />
           </Route>
         </Route>
+        <Route
+          path="*"
+          element={<Navigate to={user ? "/browse" : "/login"} replace />}
+        />
       </Routes>
     </>
   );

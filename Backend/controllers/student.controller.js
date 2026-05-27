@@ -1,6 +1,9 @@
+import Stripe from "stripe";
 import Course from "../models/course.model.js";
 import Progress from "../models/progress.model.js";
 import User from "../models/user.model.js";
+import dotenv from "dotenv";
+dotenv.config({ path: "./Backend/.env" });
 
 export const getAllCourseController = async (req, res) => {
   try {
@@ -72,6 +75,9 @@ export const purchaseCourseController = async (req, res) => {
   try {
     const { courseId } = req.params;
     const studentId = req.user.id;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_API_KEY);
+    const { name, price } = req.body;
+    console.log(process.env.STRIPE_SECRET_API_KEY);
 
     const student = await User.findById(studentId);
     const course = await Course.findById(courseId);
@@ -103,13 +109,38 @@ export const purchaseCourseController = async (req, res) => {
     });
     student.purchasedCourses.push(courseId);
     course.purchasedCount = course.purchasedCount + 1;
+
+    //?Stripe Payment Setup
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            product_data: { name },
+            unit_amount: Math.round(price * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `http://localhost:5173/courses/${courseId}`, /// add corse url
+      cancel_url: `http://localhost:5173/courses/${courseId}`,
+    });
+    if (!session.url) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Failed to make payment" });
+    }
+    // console.log(session, "this is session id");
+
     await course.save();
     await student.save();
-
     return res.status(200).json({
       message: "Course successfully purchaed",
       success: true,
       data: purchaseCourse,
+      url: session.url,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -138,12 +169,11 @@ export const updateProgressOfCourseController = async (req, res) => {
   try {
     const { courseId, chapterId } = req.params;
     const studentId = req.user.id;
+
     const currentProgress = await Progress.findOne({
       student: studentId,
       course: courseId,
     });
-    // console.log(courseId, "course id");
-    // console.log(chapterId, "chapter id");
     if (!currentProgress) {
       return res
         .status(404)
@@ -151,12 +181,12 @@ export const updateProgressOfCourseController = async (req, res) => {
     }
     const alreadyCompleted =
       currentProgress.chaptersCompleted.includes(chapterId);
-    // console.log(alreadyCompleted, "already completed");
+
     if (!alreadyCompleted) {
       currentProgress.chaptersCompleted.push(chapterId);
       await currentProgress.save();
     }
-    // console.log(currentProgress);
+
     return res.status(200).json({ success: true, message: "updated progress" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

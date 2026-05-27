@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { DUMMY_COURSES } from "../../data/teacherData";
-import { useNavigate, useParams } from "react-router-dom";
+import { data, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Lock, Play } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../utls/axios";
 import LoadingScreen from "../../Components/LoadingScreen";
 import toast from "react-hot-toast";
+import { stripePromise } from "../../utls/stripe";
+
+/**
+ * Make image editable in course edit section
+ * remove demo account courses from db
+ * deployment
+ */
 
 const CourseDetails = () => {
   const { courseId } = useParams();
@@ -29,16 +36,27 @@ const CourseDetails = () => {
   }, [course]);
 
   const { mutate: purchaseCourse, isPending: purchasing } = useMutation({
-    mutationFn: async (courseId) => {
-      const response = await axiosInstance.post(`student/purchase/${courseId}`);
+    mutationFn: async ({ courseId, name, price }) => {
+      const data = { courseId, name, price };
+
+      const response = await axiosInstance.post(
+        `student/purchase/${courseId}`,
+        data,
+      );
       console.log(response.data);
       return response.data;
     },
-    onSuccess: () => {
-      toast.success("Course Purchased Successfully");
-      queryClient.invalidateQueries(["student-courses"]);
+    onSuccess: async (data) => {
+      const stripe = await stripePromise;
+      window.location.href = data?.url;
+      // console.log(stripe);
+      // toast.success("Course Purchased Successfully");
+      // queryClient.invalidateQueries(["student-courses"]);
     },
-    onError: (err) => toast.error(err.message || "Failed to purchase"),
+    onError: (err) => {
+      toast.error(err.message || "Failed to purchase");
+      console.log(err.message);
+    },
   });
 
   const { mutate: markAsComplete, isPending } = useMutation({
@@ -64,15 +82,12 @@ const CourseDetails = () => {
           (course?.chapters.length / course?.completedChapters.length) * 100,
         );
   if (isLoading) return <LoadingScreen />;
-  console.log(course?._id, "course id");
-  console.log(chapter?._id, "chapter id");
 
   const handleChapter = (e, item) => {
     e.stopPropagation();
     setChapterId(item?._id);
   };
-  // console.log(courses);
-  // console.log(chapter?._id);
+
   return (
     <div className="flex flex-col xl:flex-row gap-6 min-h-screen bg-slate-100 p-4 md:p-6">
       {/* LEFT SIDEBAR */}
@@ -160,7 +175,7 @@ const CourseDetails = () => {
           <div className="p-4 md:p-6">
             <div className="relative overflow-hidden rounded-[2rem] bg-black shadow-lg">
               <video
-                src={canAccess ? chapter?.video : ""}
+                src={canAccess ? chapter?.video : null}
                 controls={canAccess}
                 className={`w-full aspect-video object-cover ${
                   !canAccess ? "opacity-40" : ""
@@ -205,7 +220,13 @@ const CourseDetails = () => {
                 </button>
               ) : (
                 <button
-                  onClick={() => purchaseCourse(courseId)}
+                  onClick={() =>
+                    purchaseCourse({
+                      courseId,
+                      name: course?.title,
+                      price: course?.price,
+                    })
+                  }
                   className="px-8 py-4 rounded-2xl bg-black text-white font-medium hover:opacity-90 transition shadow-md"
                 >
                   Enroll ₹{course?.price}
@@ -228,7 +249,7 @@ const CourseDetails = () => {
       </div>
 
       {/* RESOURCE CARD */}
-      {course?.isPurchased && (
+      {course?.isPurchased && course?.attachment && (
         <div className="w-full xl:w-[300px]">
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
             <h4 className="text-lg font-bold text-slate-900">Resources</h4>

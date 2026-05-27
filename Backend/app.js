@@ -14,7 +14,7 @@ const PORT = process.env.PORT;
 
 //* Deployment steps
 const __dirname = path.resolve();
-console.log(process.env.NODE_ENV);
+// console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV !== "production") {
   app.use(
     cors({
