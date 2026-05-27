@@ -17,7 +17,6 @@ const UserProfile = () => {
       return response.data;
     },
   });
-  if (isLoading) return <LoadingScreen />;
   const [formData, setFormData] = useState({
     name: "",
     password: "",
@@ -44,6 +43,8 @@ const UserProfile = () => {
     },
     onError: (err) => toast.error(err.message || "Failed to update"),
   });
+  if (isLoading) return <LoadingScreen />;
+
   console.log(user, "User from profile page");
   return (
     <div className="max-w-5xl mx-auto p-5">
