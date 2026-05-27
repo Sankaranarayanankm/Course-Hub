@@ -37,7 +37,8 @@ const TeacherCourseDetails = () => {
       return response.data.data;
     },
   });
-
+  console.log(course, "This is course from teacher course details");
+  console.log(chapters, "This is chapters from teacher course details");
   useEffect(() => {
     if (course) {
       setTitle(course.title || "");

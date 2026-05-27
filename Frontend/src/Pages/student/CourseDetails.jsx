@@ -82,7 +82,7 @@ const CourseDetails = () => {
           (course?.chapters.length / course?.completedChapters.length) * 100,
         );
   if (isLoading) return <LoadingScreen />;
-
+  console.log(course, "this is course from course details page");
   const handleChapter = (e, item) => {
     e.stopPropagation();
     setChapterId(item?._id);

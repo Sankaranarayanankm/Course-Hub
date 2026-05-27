@@ -46,7 +46,7 @@ const BrowseCourse = () => {
 
   if (isLoading) return <LoadingScreen />;
   const purchasedCourses = courses?.filter((course) => course.isPurchased);
-
+  console.log(courses, "This is courses from browse course");
   return (
     <div className="space-y-8">
       {/* Page Header */}

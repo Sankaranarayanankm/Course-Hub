@@ -46,7 +46,7 @@ const App = () => {
   }, []);
 
   if (showLoadingScreen) return <LoadingScreen />;
-  console.log(user);
+  console.log(user, "user in app file");
 
   // console.log(user?.token);
   return (

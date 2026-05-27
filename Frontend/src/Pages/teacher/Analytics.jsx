@@ -14,9 +14,9 @@ const Analytics = () => {
     },
   });
   if (isLoading) return <LoadingScreen />;
-
+  console.log(status, "This is status from teacher analytics");
   const chartData = [];
-  // console.log(status.data);
+
   for (let courseData in status.data) {
     const dataObj = {
       title: courseData,
@@ -24,7 +24,6 @@ const Analytics = () => {
     };
     chartData.push(dataObj);
   }
-  // console.log(status);
 
   return (
     <div className="flex-1 min-h-screen bg-slate-100 p-4 md:p-6 lg:p-8">

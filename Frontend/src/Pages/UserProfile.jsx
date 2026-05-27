@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../utls/axios";
 import { data } from "react-router-dom";
 import toast from "react-hot-toast";
+import LoadingScreen from "../Components/LoadingScreen";
 
 const UserProfile = () => {
   const [editNameMode, setEditNameMode] = useState(false);
@@ -16,11 +17,11 @@ const UserProfile = () => {
       return response.data;
     },
   });
+  if (isLoading) return <LoadingScreen />;
   const [formData, setFormData] = useState({
     name: "",
     password: "",
   });
-  // console.log(formData);
   useEffect(() => {
     if (user) {
       setFormData({
@@ -43,7 +44,7 @@ const UserProfile = () => {
     },
     onError: (err) => toast.error(err.message || "Failed to update"),
   });
-
+  console.log(user, "User from profile page");
   return (
     <div className="max-w-5xl mx-auto p-5">
       {/* PROFILE HEADER */}

@@ -14,12 +14,12 @@ const Dashboard = () => {
     },
   });
   // console.log(courses);
+  if (isLoading) return <LoadingScreen />;
   const categories = [
     ...new Set(courses?.map((item) => item.category.toLowerCase())),
   ];
 
-  if (isLoading) return <LoadingScreen />;
-  console.log(courses);
+  console.log(courses, "Courses in dashboard");
   return (
     <div className="flex-1 min-h-screen bg-slate-100 p-4 md:p-6 lg:p-8">
       {/* Header */}

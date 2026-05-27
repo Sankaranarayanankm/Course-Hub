@@ -20,7 +20,7 @@ const HomePage = () => {
       return response?.data;
     },
   });
-  console.log(courses);
+  console.log(courses, "This is courses from home page of teacher");
   const { mutate: deleteCourse, isPending } = useMutation({
     mutationFn: async (id) => {
       const response = await axiosInstance.delete(`/teacher/courses/${id}`);
